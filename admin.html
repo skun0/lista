@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Provvedimenti</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #000, #111);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    input, textarea, button {
+      padding: 0.8rem;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      background: #222;
+      color: white;
+      width: 100%;
+      max-width: 400px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #555;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #777;
+    }
+
+    #adminPanel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    li {
+      background: #111;
+      margin: 8px 0;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid #444;
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
+    }
+
+    .motivo {
+      font-size: 0.9rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .rimuovi {
+      margin-top: 10px;
+      background: #900;
+    }
+  </style>
+</head>
+<body>
+  <h1>Area Admin</h1>
+
+  <div id="loginPanel">
+    <input type="password" id="passwordInput" placeholder="Password admin" />
+    <button onclick="checkPassword()">Accedi</button>
+  </div>
+
+  <div id="adminPanel">
+    <input type="text" id="nomeInput" placeholder="Nome persona" />
+    <textarea id="motivoInput" placeholder="Motivo del provvedimento"></textarea>
+    <button onclick="aggiungi()">Aggiungi alla lista</button>
+    
+    <h3>Lista Provvedimenti</h3>
+    <ul id="listaAdmin"></ul>
+  </div>
+
+  <script>
+    let provvedimenti = JSON.parse(localStorage.getItem("provvedimenti")) || [];
+
+    function checkPassword() {
+      const pw = document.getElementById("passwordInput").value;
+      if (pw === "kebab") {
+        document.getElementById("loginPanel").style.display = "none";
+        document.getElementById("adminPanel").style.display = "flex";
+        aggiornaLista();
+      } else {
+        alert("Password errata.");
+      }
+    }
+
+    function aggiornaLista() {
+      const ul = document.getElementById("listaAdmin");
+      ul.innerHTML = "";
+      provvedimenti.forEach((entry, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${entry.nome}</strong>
+          <div class="motivo">Motivo: ${entry.motivo}</div>
+          <button class="rimuovi" onclick="rimuovi(${index})">Rimuovi</button>
+        `;
+        ul.appendChild(li);
+      });
+    }
+
+    function aggiungi() {
+      const nome = document.getElementById("nomeInput").value.trim();
+      const motivo = document.getElementById("motivoInput").value.trim();
+      if (nome && motivo) {
+        provvedimenti.push({ nome, motivo });
+        localStorage.setItem("provvedimenti", JSON.stringify(provvedimenti));
+        document.getElementById("nomeInput").value = "";
+        document.getElementById("motivoInput").value = "";
+        aggiornaLista();
+      } else {
+        alert("Compila tutti i campi.");
+      }
+    }
+
+    function rimuovi(index) {
+      if (confirm("Sei sicuro di voler rimuovere questo provvedimento?")) {
+        provvedimenti.splice(index, 1);
+        localStorage.setItem("provvedimenti", JSON.stringify(provvedimenti));
+        aggiornaLista();
+      }
+    }
+  </script>
+</body>
+</html>
